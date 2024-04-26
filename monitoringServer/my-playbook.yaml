@@ -1,0 +1,56 @@
+- name: install Docker
+  hosts: monitoringserver
+  become: yes
+  become_user: root
+  tasks:
+  - name: Install aptitude using apt
+    apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+  - name: Add Docker GPG apt Key
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add Docker Repository
+    apt_repository:
+      repo: deb https://download.docker.com/linux/ubuntu bionic stable
+      state: present
+
+  - name: Update apt and install docker-ce
+    apt: update_cache=yes name=docker-ce state=latest
+  - name: Install docker-compose from official github repo
+    get_url:
+      url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64
+      dest: /usr/local/bin/docker-compose
+      mode: 'u+x,g+x'
+
+- name: clone the application source code from git repository
+  hosts: monitoringserver
+  become: yes
+  become_user: root
+  tasks:
+  - name: clone repository
+    shell:
+      cmd: git clone 
+    ignore_errors: True
+
+- name: Install and Configure Prometheus
+  hosts: monitoringserver
+  become: yes
+  tasks:
+    - name: create prometheus image
+      shell:
+        cmd: docker build -t my-prometheus ~/GrafanaProvisioning/monitoringServer/monitoring/prometheus
+    - name: run prometheus container
+      shell:
+        cmd: sudo docker run -d -p 9090:9090 my-prometheus
+      ignore_errors: True
+
+- name: Install Grafana
+  hosts: monitoringserver
+  become: yes
+  tasks:
+    - name: run grafana container
+      shell:
+        cmd: docker-compose -f ~/GrafanaProvisioning/monitoringServer/monitoring/grafana/docker-compose.yml up -d
+      ignore_errors: True

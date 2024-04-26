@@ -1,0 +1,15 @@
+version: '3'
+services:
+  grafana:
+    image: grafana/grafana:8.5.27-ubuntu
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./provisioning:/etc/grafana/provisioning
+      - ./grafana.ini:/etc/grafana/grafana.ini
+    environment:
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    restart: always
+
