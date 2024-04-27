@@ -8,10 +8,11 @@ terraform {
 }
 
 provider "azurerm" {
-  subscription_id = ""
-  client_id       = ""
-  client_secret   = ""
-  tenant_id       = ""
+  subscription_id = local.envs["subscription_id"]
+  client_id       = local.envs["client_id"]
+  client_secret   = local.envs["client_secret"]
+  tenant_id       = local.envs["tenant_id"]
+
   features {}
 }
 
